@@ -4,7 +4,7 @@ Vigilante is a simple library designed to be used when you want to watch a direc
 
 ## Usage
 
-`(vigilante/watch directory callback poll-time-interval)`
+`(vigilante.core/watch directory callback poll-time-interval)`
 
 ## Installation
 

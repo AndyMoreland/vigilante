@@ -27,5 +27,5 @@
       (recur (Date.)))))
 
 (defn watch [directory callback poll-time]
-  (doto (Thread. #(process directory callback))
+  (doto (Thread. #(process directory callback poll-time))
       (.start)))
