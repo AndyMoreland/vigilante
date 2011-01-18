@@ -1,7 +1,7 @@
 (ns vigilante.core
   (:import java.io.File
-           java.util.Date
-           java.lang.Thread))
+           java.lang.Thread
+           [java.util.concurrent ScheduledThreadPoolExecutor TimeUnit]))
 
 (def keep-running (atom {}))
 
@@ -18,14 +18,10 @@
     (map #(str directory "/" %) (seq files))))
 
 (defn process [directory callback poll-time]
-  (def keep-running (atom (merge @keep-running {(Thread/currentThread) true})))
-  (loop [date (Date.)]
-    (Thread/sleep poll-time)
-    (doseq [file (filter #(>= 0 (.compareTo date (Date. (last-modified %)))) (list-dir-files directory))]
-      (future (callback file)))
-    (if (@keep-running (Thread/currentThread))
-      (recur (Date.)))))
+  (let [now (System/currentTimeMillis)]
+    (doseq [file (filter #(> (last-modified %) (- now poll-time)) (list-dir-files directory))]
+      (future (callback file)))))
 
 (defn watch [directory callback poll-time]
-  (doto (Thread. #(process directory callback poll-time))
-      (.start)))
+  (doto (ScheduledThreadPoolExecutor. 1)
+      (.scheduleWithFixedDelay #(process directory callback poll-time) 0 poll-time TimeUnit/MILLISECONDS)))
