@@ -13,7 +13,6 @@
 
 (defn list-dir-files [directory]
   "returns a list of files on the desktop"
-  []
   (let [files (.list (File. directory))]
     (map #(str directory "/" %) (seq files))))
 
